@@ -72,9 +72,6 @@ def rest_of_ORF(dna):
     'ATGAGA'
     """
     #TAG, TAA, TGA are the stop codons
-    finalstring = ''
-    #nostopcodon = True
-    index = 0
     for n in range(0, len(dna), 3):
         if dna[n] in ('T'):
             codon = dna[n: n + 3]
@@ -121,12 +118,11 @@ def find_all_ORFs_oneframe(dna):
     for x in range(0, len(dna), 3):
         if tempdna[y:(y+3)] == ('ATG'):
             #locORFs.append(x)
-            allORFs.append(rest_of_ORF(tempdna[x:]))
-            y = y + len(allORFs[count]) + 3
+            allORFs.append(rest_of_ORF(tempdna[y:]))
+            y = y + len(allORFs[count])
             count+=1
         y += 3
-    #for y in locORFs:
-    #    allORFs.append()
+
     return allORFs
 
     """
@@ -196,7 +192,6 @@ def find_all_ORFs_both_strands(dna):
     """
     tempdna = dna
     reversetempdna = get_reverse_complement(dna)
-    allORFs = []
     forward = (find_all_ORFs(tempdna))
     backward = (find_all_ORFs(reversetempdna))
     return (forward + backward)
@@ -253,4 +248,5 @@ def gene_finder(dna):
 
 if __name__ == "__main__":
     import doctest
-    doctest.run_docstring_examples(find_all_ORFs_both_strands, globals(), verbose=True)
+    #doctest.testmod()
+    doctest.run_docstring_examples(find_all_ORFs_oneframe, globals(), verbose=True)
