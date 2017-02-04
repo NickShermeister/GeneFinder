@@ -2,7 +2,7 @@
 """
 YOUR HEADER COMMENT HERE
 
-@author: YOUR NAME HERE
+@author: Nicholas Sherman
 
 """
 
@@ -72,7 +72,7 @@ def rest_of_ORF(dna):
     'ATGAGA'
     """
     #TAG, TAA, TGA are the stop codons
-    for n in range(0, len(dna), 3):
+    for n in range(0, (len(dna)-len(dna)%3), 3):
         if dna[n] in ('T'):
             codon = dna[n: n + 3]
             if codon in ('TAG', 'TAA', 'TGA'):
@@ -110,20 +110,20 @@ def find_all_ORFs_oneframe(dna):
     >>> find_all_ORFs_oneframe("ATGCATGAATGTAGATAGATGTGCCC")
     ['ATGCATGAATGTAGA', 'ATGTGCCC']
     """
-    allORFs = []
+    allORFs1 = []
     tempdna = dna
     locORFs = []
     count = 0
     y = 0
-    for x in range(0, len(dna), 3):
+    for x in range(0, (len(dna)-len(dna)%3), 3):
         if tempdna[y:(y+3)] == ('ATG'):
             #locORFs.append(x)
-            allORFs.append(rest_of_ORF(tempdna[y:]))
-            y = y + len(allORFs[count])
+            allORFs1.append(rest_of_ORF(tempdna[y:]))
+            y = y + len(allORFs1[count])
             count+=1
         y += 3
 
-    return allORFs
+    return allORFs1
 
     """
     Something broke in here. I don't know what and I gave up trying to fix it because I don't understand whatever it is I broke.
@@ -171,14 +171,14 @@ def find_all_ORFs(dna):
     ['ATGCATGAATGTAG', 'ATGAATGTAG', 'ATG']
     """
     tempdna = dna
-    allORFs = []
+    allORFs2 = []
     frameORFs = []
 
     for frame in range(0, 3):
         frameORFs = (find_all_ORFs_oneframe(dna[frame:]))
         for x in frameORFs:
-            allORFs.append(x)
-    return allORFs
+            allORFs2.append(x)
+    return allORFs2
 
 
 def find_all_ORFs_both_strands(dna):
@@ -203,8 +203,18 @@ def longest_ORF(dna):
     >>> longest_ORF("ATGCGAATGTAGCATCAAA")
     'ATGCTACATTCGCAT'
     """
-    # TODO: implement this
-    pass
+    allORFs = find_all_ORFs_both_strands(dna)
+    index = 0
+    maxlen = 0
+    curlen = 0
+    maxlenindex = 0
+    for orf in allORFs:
+        curlen = len(orf)
+        if curlen > maxlen:
+            maxlen = curlen
+            maxlenindex = index
+        index += 1
+    return allORFs[maxlenindex]
 
 
 def longest_ORF_noncoding(dna, num_trials):
@@ -214,8 +224,16 @@ def longest_ORF_noncoding(dna, num_trials):
         dna: a DNA sequence
         num_trials: the number of random shuffles
         returns: the maximum length longest ORF """
-    # TODO: implement this
-    pass
+    #shuffle_string()
+    maxlen = 0
+    tempdna = shuffle_string(dna)
+    for i in range(num_trials):
+        if maxlen < len(longest_ORF(tempdna)):
+            maxlen = len(longest_ORF(tempdna))
+        tempdna = shuffle_string(dna)
+    print(maxlen)
+    return maxlen
+
 
 
 def coding_strand_to_AA(dna):
@@ -232,8 +250,10 @@ def coding_strand_to_AA(dna):
         >>> coding_strand_to_AA("ATGCCCGCTTT")
         'MPA'
     """
-    # TODO: implement this
-    pass
+    count = ''
+    for x in range(0, len(dna)-(len(dna)%3), 3):
+        count = count + aa_table[dna[x:x+3]]
+    return count
 
 
 def gene_finder(dna):
@@ -242,11 +262,20 @@ def gene_finder(dna):
         dna: a DNA sequence
         returns: a list of all amino acid sequences coded by the sequence dna.
     """
-    # TODO: implement this
-    pass
+    threshold = longest_ORF_noncoding(dna, 1500)
+    allORFSfinal = []
+    allORFSfinal = find_all_ORFs_both_strands(dna)
+    AAcodes = []
+    print(len(dna))
+    for x in allORFSfinal:
+        if len(x) > threshold:
+            AAcodes.append(coding_strand_to_AA(x))
+    print(len(allORFSfinal))
+    return AAcodes
 
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     import doctest
     #doctest.testmod()
-    doctest.run_docstring_examples(find_all_ORFs_oneframe, globals(), verbose=True)
+    doctest.run_docstring_examples(coding_strand_to_AA, globals(), verbose=True)
+"""
